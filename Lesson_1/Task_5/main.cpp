@@ -19,7 +19,14 @@ int main()
 
         int spacesCount = (maxWidth - starsCount) / 2;
 
-        cout << string(spacesCount, ' ') << string(starsCount, '*');
+        for (int spaceIndex = 0; spaceIndex < spacesCount; spaceIndex++) {
+            cout << " ";
+        }
+
+        for (int starIndex = 0; starIndex < starsCount; starIndex++) {
+            cout << "*";
+        }
+
         cout << endl;
     }
 }
