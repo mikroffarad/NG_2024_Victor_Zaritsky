@@ -8,10 +8,10 @@ int main()
         double secondNumber;
         char operation;
 
-        cout << "Type number a: ";
+        cout << "Type first number: ";
         cin >> firstNumber;
 
-        cout << "Type number b: ";
+        cout << "Type second number: ";
         cin >> secondNumber;
 
         cout << "Select operation (+, -, *, /): ";
