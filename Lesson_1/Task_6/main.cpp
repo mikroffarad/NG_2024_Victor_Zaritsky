@@ -1,5 +1,6 @@
 #include <iostream>
-#include "windows.h"
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -10,68 +11,46 @@ void clearScreen() {
     system("clear");
 #endif
 }
+void drawTriangle(int size, bool isLeftAligned, bool isPointingDown) {
+    for (int row = 1; row <= size; row++) {
+        int stars = isPointingDown ? size - row + 1 : row;
+        int spaces = isLeftAligned ? 0 : size - stars;
 
-void drawPattern1(int rows) {
-    for (int i = 1; i <= rows; i++) {
-        for (int j = 1; j <= i; j++) {
-            cout << "* ";
+        for (int spaceIndex = 0; spaceIndex < spaces; spaceIndex++) {
+            cout << " ";
         }
+
+        for (int starIndex = 0; starIndex < stars; starIndex++) {
+            cout << "*";
+        }
+
         cout << endl;
+        // cout << string(spaces, ' ') << string(stars, '*') << '\n';
     }
 }
 
-void drawPattern2(int rows) {
-    for (int i = rows; i >= 1; i--) {
-        for (int j = i; j > 0; j--) {
-            cout << "* ";
-        }
-        cout << endl;
-    }
-}
+int main() {
+    int size;
+    cout << "Введите размер треугольника: ";
+    cin >> size;
 
-void drawPattern3(int rows) {
-    for (int i = 1; i <= rows; i++) {
-        for (int k = rows - i; k > 0; k--) {
-            cout << "  ";
-        }
-        for (int j = 1; j <= i; j++) {
-            cout << "* ";
-        }
-        cout << endl;
-    }
-}
+    int DELAY_INTERVAL = 200;
 
-void drawPattern4(int rows) {
-    for (int i = rows; i >= 1; i--) {
-        for (int k = rows - i; k > 0; k--) {
-            cout << "  ";
-        }
-        for (int j = i; j > 0; j--) {
-            cout << " *";
-        }
-        cout << endl;
-    }
-}
-
-int main()
-{
-    int rows;
-    cout << "Enter a number of rows: ";
-    cin >> rows;
-    clearScreen();
-    while(true) {
-        drawPattern1(rows);
-        Sleep(200);
+    while (true) {
         clearScreen();
-        drawPattern3(rows);
-        Sleep(200);
+        drawTriangle(size, true, false);
+        this_thread::sleep_for(chrono::milliseconds(DELAY_INTERVAL));
+
         clearScreen();
-        drawPattern4(rows);
-        Sleep(200);
+        drawTriangle(size, false, false);
+        this_thread::sleep_for(chrono::milliseconds(DELAY_INTERVAL));
+
         clearScreen();
-        drawPattern2(rows);
-        Sleep(200);
+        drawTriangle(size, false, true);
+        this_thread::sleep_for(chrono::milliseconds(DELAY_INTERVAL));
+
         clearScreen();
+        drawTriangle(size, true, true);
+        this_thread::sleep_for(chrono::milliseconds(DELAY_INTERVAL));
     }
 }
-
