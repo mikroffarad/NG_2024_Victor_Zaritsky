@@ -32,6 +32,7 @@ void drawTriangle(int size, bool isLeftAligned, bool isPointingDown) {
 int main() {
     int size;
     cout << "Введите размер треугольника: ";
+    cout << "Enter triangle's size: ";
     cin >> size;
 
     int DELAY_INTERVAL = 200;
