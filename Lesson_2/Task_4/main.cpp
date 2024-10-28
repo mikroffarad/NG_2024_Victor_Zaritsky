@@ -4,12 +4,20 @@ using namespace std;
 
 int main()
 {
-    char string[256];
-    cout << "Enter a string: ";
-    cin.getline(string, 256);
-    int element = 0;
-    while (string[element] != 0) {
-        element++;
+    const int MAX_INPUT = 256;
+    char string[MAX_INPUT];
+    cin.getline(string, MAX_INPUT);
+
+    int count[MAX_INPUT] = {0};
+
+    for (int counter = 0; string[counter] != '\0'; counter++) {
+        count[string[counter]]++;
     }
-    cout << "You entered " << element << " characters" << endl;
+
+    for (int counter = 0; string[counter] != '\0'; counter++) {
+        if (count[string[counter]] != 0) {
+            cout << char(39) << string[counter] << char(39) << ": " << count[string[counter]] << endl;
+            count[string[counter]] = 0;
+        }
+    }
 }
