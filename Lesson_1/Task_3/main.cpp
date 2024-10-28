@@ -4,37 +4,31 @@ using namespace std;
 
 int main()
 {
-        double firstNumber;
-        double secondNumber;
-        char operation;
+    char action;
+    cout << "Choose an action: \n+ (add)\n- (subtract)\n* (multiply)\n/ (divide)\nYour action: ";
+    cin >> action;
 
-        cout << "Type first number: ";
-        cin >> firstNumber;
+    double firstNumber;
+    double secondNumber;
 
-        cout << "Type second number: ";
-        cin >> secondNumber;
+    cout << "Enter your first number: ";
+    cin >> firstNumber;
 
-        cout << "Select operation (+, -, *, /): ";
-        cin >> operation;
+    cout << "Enter your second number: ";
+    cin >> secondNumber;
 
-        switch(operation) {
-            case '+':
-                cout << firstNumber + secondNumber << endl;
-                break;
-            case '-':
-                cout << firstNumber - secondNumber << endl;
-                break;
-            case '*':
-                cout << firstNumber * secondNumber << endl;
-                break;
-            case '/':
-                if (secondNumber != 0) {
-                    cout << firstNumber / secondNumber << endl;
-                } else {
-                    cout << "Division by zero!" << endl;
-                }
-                break;
-            default:
-                cout << "Error!" << endl;
-            }
+    switch(action) {
+    case '+':
+        cout << "Result is " << firstNumber + secondNumber << endl;
+        break;
+    case '-':
+        cout << "Result is " << firstNumber - secondNumber << endl;
+        break;
+    case '*':
+        cout << "Result is " << firstNumber * secondNumber << endl;
+        break;
+    case '/':
+        cout << "Result is " << firstNumber / secondNumber << endl;
+        break;
+    }
 }
