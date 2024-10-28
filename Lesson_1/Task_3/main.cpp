@@ -17,18 +17,19 @@ int main()
     cout << "Enter your second number: ";
     cin >> secondNumber;
 
+    cout << "Result is: ";
     switch(action) {
     case '+':
-        cout << "Result is " << firstNumber + secondNumber << endl;
+        cout << firstNumber + secondNumber << endl;
         break;
     case '-':
-        cout << "Result is " << firstNumber - secondNumber << endl;
+        cout << firstNumber - secondNumber << endl;
         break;
     case '*':
-        cout << "Result is " << firstNumber * secondNumber << endl;
+        cout << firstNumber * secondNumber << endl;
         break;
     case '/':
-        cout << "Result is " << firstNumber / secondNumber << endl;
+        cout << firstNumber / secondNumber << endl;
         break;
     }
 }
