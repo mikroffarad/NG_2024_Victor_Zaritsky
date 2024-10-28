@@ -4,11 +4,11 @@ using namespace std;
 
 int main()
 {
-    int MAX_INPUTS = 20;
+    const int MAX_INPUTS = 20;
     int values[MAX_INPUTS];
 
     int maxValue = 0;
-    int maxEnteredInputs = 0;
+    int maxEnteredInputs = 20;
 
     for (int counter = 0; counter < MAX_INPUTS; counter++) {
         cout << "Enter " << counter + 1 << " value: ";
