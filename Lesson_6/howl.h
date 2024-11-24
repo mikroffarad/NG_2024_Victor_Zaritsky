@@ -36,6 +36,13 @@ private slots:
 
     void setNextTrack();
     void setPreviousTrack();
+    void stopAudio();
+    void onSliderReleased();
+    void updateSlider(qint64 position);
+    void updateSliderRange(qint64 duration);
+
+    void updateDuration(qint64 duration);
+    void updatePosition(qint64 position);
 
 private:
     Ui::Howl *ui;
@@ -46,5 +53,7 @@ private:
 
     QMediaPlayer *m_player;
     QAudioOutput *m_audioOutput;
+
+    QString formatTime(qint64 ms);
 };
 #endif // HOWL_H
