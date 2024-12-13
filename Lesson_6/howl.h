@@ -10,6 +10,10 @@
 #include <QAction>
 #include <QMenu>
 
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Howl;
@@ -44,6 +48,10 @@ private slots:
     void updateDuration(qint64 duration);
     void updatePosition(qint64 position);
 
+    void createNewPlaylist();
+    void savePlaylist();
+    void loadPlaylist();
+
 private:
     Ui::Howl *ui;
     QMenu *m_file;
@@ -55,5 +63,12 @@ private:
     QAudioOutput *m_audioOutput;
 
     QString formatTime(qint64 ms);
+
+    QMenu *m_playlistMenu;
+    QAction *m_newPlaylist;
+    QAction *m_savePlaylist;
+    QAction *m_loadPlaylist;
+
+    QString extractFileName(const QString &fullPath);
 };
 #endif // HOWL_H

@@ -1,5 +1,6 @@
 #include "howl.h"
 #include "ui_howl.h"
+#include <QMessageBox>
 
 Howl::Howl(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +19,16 @@ Howl::Howl(QWidget *parent)
 
     m_player->setAudioOutput(m_audioOutput);
 
+    m_playlistMenu = menuBar()->addMenu(tr("Playlist"));
+
+    m_newPlaylist = new QAction(tr("New Playlist"), this);
+    m_savePlaylist = new QAction(tr("Save Playlist"), this);
+    m_loadPlaylist = new QAction(tr("Load Playlist"), this);
+
+    m_playlistMenu->addAction(m_newPlaylist);
+    m_playlistMenu->addAction(m_savePlaylist);
+    m_playlistMenu->addAction(m_loadPlaylist);
+
     ui->sl_volume->setRange(0, 100);
 
     connect (m_player, &QMediaPlayer::positionChanged, this, &Howl::setProgress);
@@ -29,7 +40,12 @@ Howl::Howl(QWidget *parent)
     connect (ui->sl_volume, &QSlider::valueChanged, this, &Howl::setVolume);
     connect (ui->sl_volume, &QSlider::valueChanged, this, &Howl::setVolumeText);
 
-    connect (ui->lw_playlist, &QListWidget::currentTextChanged, this, &Howl::setMedia);
+    // connect (ui->lw_playlist, &QListWidget::currentTextChanged, this, &Howl::setMedia);
+    connect(ui->lw_playlist, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *item) {
+        if (item) {
+            setMedia(item->text());
+        }
+    });
 
     connect (ui->b_next, &QPushButton::clicked, this, &Howl::setNextTrack);
     connect (ui->b_previous, &QPushButton::clicked, this, &Howl::setPreviousTrack);
@@ -42,6 +58,10 @@ Howl::Howl(QWidget *parent)
     connect(m_player, &QMediaPlayer::positionChanged, this, &Howl::updatePosition);
     connect(m_player, &QMediaPlayer::positionChanged, this, &Howl::updateSlider);
     connect(m_player, &QMediaPlayer::durationChanged, this, &Howl::updateSliderRange);
+
+    connect(m_newPlaylist, &QAction::triggered, this, &Howl::createNewPlaylist);
+    connect(m_savePlaylist, &QAction::triggered, this, &Howl::savePlaylist);
+    connect(m_loadPlaylist, &QAction::triggered, this, &Howl::loadPlaylist);
 
     ui->sl_volume->setValue(c_startVolume);
     m_audioOutput->setVolume((float)c_startVolume / 100);
@@ -60,14 +80,20 @@ Howl::~Howl()
 
 void Howl::selectFiles()
 {
-    QStringList files = QFileDialog::getOpenFileNames(
+    QStringList fileNames = QFileDialog::getOpenFileNames(
         this,
         "Select one or more files to open",
         "",
-        "Music (*.mp3)");
+        "Music (*.mp3 *.wav *.ogg *.flac *.opus)"
+        );
 
-    ui->lw_playlist->clear();
-    ui->lw_playlist->addItems(files);
+    for (const QString &file : fileNames) {
+        ui->lw_playlist->addItem((extractFileName(file)));
+        ui->lw_playlist->item(ui->lw_playlist->count()-1)->setData(Qt::UserRole, file);
+    }
+
+    // ui->lw_playlist->clear();
+    // ui->lw_playlist->addItems(files);
 }
 
 void Howl::setVolumeText(int volume)
@@ -77,9 +103,23 @@ void Howl::setVolumeText(int volume)
 
 void Howl::setMedia(QString text)
 {
-    m_player->setSource(QUrl::fromLocalFile(text));
-    ui->l_name->setText(text.remove(0, text.lastIndexOf("/")+1));
-    ui->l_position->setText("00:00");
+    QListWidgetItem* item = nullptr;
+    for (int i = 0; i < ui->lw_playlist->count(); ++i) {
+        if (ui->lw_playlist->item(i)->text() == text) {
+            item = ui->lw_playlist->item(i);
+            break;
+        }
+    }
+
+    if (item) {
+        QString fullPath = item->data(Qt::UserRole).toString();
+
+        QUrl mediaUrl = QUrl::fromLocalFile(fullPath);
+        m_player->setSource(mediaUrl);
+        ui->l_name->setText(text);
+
+        m_player->play();
+    }
 }
 
 void Howl::setProgress(qint64 progress)
@@ -125,14 +165,11 @@ void Howl::setNextTrack()
 
     if (totalItems == 0) return;
 
-    int nextRow;
-    if (currentRow == totalItems - 1) {
-        nextRow = 0;
-    } else {
-        nextRow = currentRow + 1;
-    }
+    int nextRow = (currentRow == totalItems - 1) ? 0 : currentRow + 1;
+
     ui->lw_playlist->setCurrentRow(nextRow);
-    m_player->play();
+    QString nextTrackName = ui->lw_playlist->currentItem()->text();
+    setMedia(nextTrackName);
 }
 
 void Howl::setPreviousTrack()
@@ -144,14 +181,11 @@ void Howl::setPreviousTrack()
 
     if (totalItems == 0) return;
 
-    int previousRow;
-    if (currentRow == 0) {
-        previousRow = totalItems - 1;
-    } else {
-        previousRow = currentRow - 1;
-    }
+    int previousRow = (currentRow == 0) ? totalItems - 1 : currentRow - 1;
+
     ui->lw_playlist->setCurrentRow(previousRow);
-    m_player->play();
+    QString previousTrackName = ui->lw_playlist->currentItem()->text();
+    setMedia(previousTrackName);
 }
 
 void Howl::stopAudio()
@@ -199,4 +233,27 @@ void Howl::updatePosition(qint64 position)
         ui->s_progress->setValue(position);
     }
     ui->l_position->setText(formatTime(position));
+}
+
+void Howl::createNewPlaylist()
+{
+    ui->lw_playlist->clear();
+}
+
+void Howl::savePlaylist()
+{
+    if (ui->lw_playlist->count() == 0) {
+        QMessageBox::warning(this, "Save Playlist", "Playlist is empty");
+    }
+}
+
+void Howl::loadPlaylist()
+{
+
+}
+
+QString Howl::extractFileName(const QString &fullPath)
+{
+    QFileInfo fileInfo(fullPath);
+    return fileInfo.fileName();
 }
