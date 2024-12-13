@@ -119,14 +119,38 @@ void Howl::playStateChanged(QMediaPlayer::PlaybackState state)
 void Howl::setNextTrack()
 {
     m_player->stop();
-    ui->lw_playlist->setCurrentRow(ui->lw_playlist->currentRow() + 1);
+
+    int currentRow = ui->lw_playlist->currentRow();
+    int totalItems = ui->lw_playlist->count();
+
+    if (totalItems == 0) return;
+
+    int nextRow;
+    if (currentRow == totalItems - 1) {
+        nextRow = 0;
+    } else {
+        nextRow = currentRow + 1;
+    }
+    ui->lw_playlist->setCurrentRow(nextRow);
     m_player->play();
 }
 
 void Howl::setPreviousTrack()
 {
     m_player->stop();
-    ui->lw_playlist->setCurrentRow(ui->lw_playlist->currentRow() - 1);
+
+    int currentRow = ui->lw_playlist->currentRow();
+    int totalItems = ui->lw_playlist->count();
+
+    if (totalItems == 0) return;
+
+    int previousRow;
+    if (currentRow == 0) {
+        previousRow = totalItems - 1;
+    } else {
+        previousRow = currentRow - 1;
+    }
+    ui->lw_playlist->setCurrentRow(previousRow);
     m_player->play();
 }
 
