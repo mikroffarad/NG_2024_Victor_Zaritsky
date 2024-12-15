@@ -69,6 +69,8 @@ Howl::Howl(QWidget *parent)
     ui->sl_volume->setValue(c_startVolume);
     m_audioOutput->setVolume((float)c_startVolume / 100);
 
+    ui->b_next->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+    ui->b_previous->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
 }
 
 Howl::~Howl()
