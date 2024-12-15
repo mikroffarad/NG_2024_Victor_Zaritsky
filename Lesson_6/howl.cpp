@@ -18,11 +18,11 @@ Howl::Howl(QWidget *parent)
 
     m_player->setAudioOutput(m_audioOutput);
 
-    m_playlistMenu = menuBar()->addMenu(tr("Playlist"));
+    m_playlistMenu = menuBar()->addMenu("Playlist");
 
-    m_newPlaylist = new QAction(tr("New Playlist"), this);
-    m_savePlaylist = new QAction(tr("Save Playlist"), this);
-    m_loadPlaylist = new QAction(tr("Load Playlist"), this);
+    m_newPlaylist = new QAction("New Playlist", this);
+    m_savePlaylist = new QAction("Save Playlist", this);
+    m_loadPlaylist = new QAction("Load Playlist", this);
 
     m_playlistMenu->addAction(m_newPlaylist);
     m_playlistMenu->addAction(m_savePlaylist);
@@ -273,14 +273,19 @@ void Howl::loadPlaylist()
 {
     QString fileName = QFileDialog::getOpenFileName(
         this,
-        tr("Load Playlist"),
+        "Load Playlist",
         "",
-        tr("Playlist Files (*.json)")
+        "Playlist Files (*.json)"
         );
 
     if (fileName.isEmpty()) return;
 
     QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, "Load Playlist", "Cannot open file");
+        return;
+    }
+
     QByteArray data = file.readAll();
     QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
     QJsonArray playlistArray = jsonDoc.array();
