@@ -1,6 +1,5 @@
 #include "howl.h"
 #include "ui_howl.h"
-#include <QMessageBox>
 
 Howl::Howl(QWidget *parent)
     : QMainWindow(parent)
@@ -33,17 +32,21 @@ Howl::Howl(QWidget *parent)
 
     connect (m_player, &QMediaPlayer::positionChanged, this, &Howl::setProgress);
     connect (m_player, &QMediaPlayer::playbackStateChanged, this, &Howl::playStateChanged);
-    connect (ui->b_play, &QPushButton::clicked, m_player, &QMediaPlayer::play);
+    connect(ui->b_play, &QPushButton::clicked, this, [this]() {
+        if (m_player->source().isValid()) {
+            m_player->play();
+        }
+    });
 
     connect (m_select, &QAction::triggered, this, &Howl::selectFiles);
 
     connect (ui->sl_volume, &QSlider::valueChanged, this, &Howl::setVolume);
     connect (ui->sl_volume, &QSlider::valueChanged, this, &Howl::setVolumeText);
 
-    // connect (ui->lw_playlist, &QListWidget::currentTextChanged, this, &Howl::setMedia);
-    connect(ui->lw_playlist, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *item) {
-        if (item) {
-            setMedia(item->text());
+    connect(ui->lw_playlist, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *current, QListWidgetItem *) {
+        if (current) {
+            m_player->stop();
+            setMedia(current->text());
         }
     });
 
@@ -91,9 +94,6 @@ void Howl::selectFiles()
         ui->lw_playlist->addItem((extractFileName(file)));
         ui->lw_playlist->item(ui->lw_playlist->count()-1)->setData(Qt::UserRole, file);
     }
-
-    // ui->lw_playlist->clear();
-    // ui->lw_playlist->addItems(files);
 }
 
 void Howl::setVolumeText(int volume)
@@ -104,7 +104,7 @@ void Howl::setVolumeText(int volume)
 void Howl::setMedia(QString text)
 {
     QListWidgetItem* item = nullptr;
-    for (int i = 0; i < ui->lw_playlist->count(); ++i) {
+    for (int i = 0; i < ui->lw_playlist->count(); i++) {
         if (ui->lw_playlist->item(i)->text() == text) {
             item = ui->lw_playlist->item(i);
             break;
@@ -117,8 +117,6 @@ void Howl::setMedia(QString text)
         QUrl mediaUrl = QUrl::fromLocalFile(fullPath);
         m_player->setSource(mediaUrl);
         ui->l_name->setText(text);
-
-        m_player->play();
     }
 }
 
@@ -245,11 +243,57 @@ void Howl::savePlaylist()
     if (ui->lw_playlist->count() == 0) {
         QMessageBox::warning(this, "Save Playlist", "Playlist is empty");
     }
+
+    QString fileName = QFileDialog::getSaveFileName(
+        this,
+        "Save Playlist",
+        "",
+        "Playlist Files (*.json)"
+        );
+
+    if (fileName.isEmpty()) return;
+
+    QJsonArray playlistArray;
+    for (int i = 0; i < ui->lw_playlist->count(); i++) {
+        QJsonObject trackObj;
+        trackObj["name"] = ui->lw_playlist->item(i)->text();
+        trackObj["path"] = ui->lw_playlist->item(i)->data(Qt::UserRole).toString();
+        playlistArray.append(trackObj);
+    }
+
+    QJsonDocument jsonDoc(playlistArray);
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(jsonDoc.toJson());
+        file.close();
+    }
 }
 
 void Howl::loadPlaylist()
 {
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        tr("Load Playlist"),
+        "",
+        tr("Playlist Files (*.json)")
+        );
 
+    if (fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    QByteArray data = file.readAll();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(data);
+    QJsonArray playlistArray = jsonDoc.array();
+
+    ui->lw_playlist->clear();
+    for (const QJsonValue &trackValue : playlistArray) {
+        QJsonObject trackObj = trackValue.toObject();
+        QString name = trackObj["name"].toString();
+        QString path = trackObj["path"].toString();
+
+        ui->lw_playlist->addItem(name);
+        ui->lw_playlist->item(ui->lw_playlist->count() - 1)->setData(Qt::UserRole, path);
+    }
 }
 
 QString Howl::extractFileName(const QString &fullPath)

@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include <QTimer>
 
 #include <QDebug>
 #include <QAction>
