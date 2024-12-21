@@ -5,9 +5,9 @@ int main() {
     const int MAX_INPUTS = 5;
     int values[MAX_INPUTS];
 
-    for (int i = 0; i < MAX_INPUTS; i++) {
-        cout << "Enter " << i + 1 << " value: ";
-        cin >> values[i];
+    for (int counter = 0; counter < MAX_INPUTS; counter++) {
+        cout << "Enter " << counter + 1 << " value: ";
+        cin >> values[counter];
     }
 
     for (int row = 1; row <= MAX_INPUTS; row++) {
